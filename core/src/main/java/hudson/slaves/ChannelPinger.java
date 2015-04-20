@@ -49,21 +49,34 @@ import static java.util.logging.Level.*;
 @Extension
 public class ChannelPinger extends ComputerListener {
     private static final Logger LOGGER = Logger.getLogger(ChannelPinger.class.getName());
-    private static final String SYS_PROPERTY_NAME  = ChannelPinger.class.getName() + ".pingInterval";
+    private static final String TIMEOUT_SECONDS_PROPERTY = ChannelPinger.class.getName() + ".pingTimeoutSeconds";
+    private static final String INTERVAL_MINUTES_PROPERTY = ChannelPinger.class.getName() + ".pingInterval";
+    private static final String INTERVAL_SECONDS_PROPERTY = ChannelPinger.class.getName() + ".pingIntervalSeconds";
+
+    private static final int DEFAULT_TIMEOUT_SECONDS = Integer.getInteger(TIMEOUT_SECONDS_PROPERTY, 4 * 60);
+    private static final int DEFAULT_INTERVAL_SECONDS = Integer.getInteger(INTERVAL_SECONDS_PROPERTY, 60 * Integer.getInteger(INTERVAL_MINUTES_PROPERTY, 5));
 
     /**
-     * Interval for the ping in minutes.
+     * Timeout for the ping in seconds.
      */
-    private int pingInterval = 5;
+    private final int pingTimeoutSeconds;
+
+    /**
+     * Interval for the ping in seconds.
+     */
+    private final int pingIntervalSeconds;
+
 
     public ChannelPinger() {
-        String interval = System.getProperty(SYS_PROPERTY_NAME);
-        if (interval != null) {
-            try {
-                pingInterval = Integer.valueOf(interval);
-            } catch (NumberFormatException e) {
-                LOGGER.warning("Ignoring invalid " + SYS_PROPERTY_NAME + "=" + interval);
-            }
+        this(DEFAULT_TIMEOUT_SECONDS, DEFAULT_INTERVAL_SECONDS);
+    }
+
+    public ChannelPinger(int pingTimeoutSeconds, int pingIntervalSeconds) {
+        this.pingTimeoutSeconds = pingTimeoutSeconds;
+        this.pingIntervalSeconds = pingIntervalSeconds;
+
+        if (pingIntervalSeconds < pingTimeoutSeconds) {
+            LOGGER.warning("Ping interval (" + pingIntervalSeconds + ") is less than ping timeout (" + pingTimeoutSeconds + ")");
         }
     }
 
@@ -73,13 +86,13 @@ public class ChannelPinger extends ComputerListener {
     }
 
     public void install(Channel channel) {
-        if (pingInterval < 1) {
+        if (pingTimeoutSeconds < 1 || pingIntervalSeconds < 1) {
             LOGGER.fine("Slave ping is disabled");
             return;
         }
 
         try {
-            channel.call(new SetUpRemotePing(pingInterval));
+            channel.call(new SetUpRemotePing(pingTimeoutSeconds, pingIntervalSeconds));
             LOGGER.fine("Set up a remote ping for " + channel.getName());
         } catch (Exception e) {
             LOGGER.severe("Failed to set up a ping for " + channel.getName());
@@ -87,25 +100,26 @@ public class ChannelPinger extends ComputerListener {
 
         // set up ping from both directions, so that in case of a router dropping a connection,
         // both sides can notice it and take compensation actions.
-        setUpPingForChannel(channel, pingInterval);
+        setUpPingForChannel(channel, pingTimeoutSeconds, pingIntervalSeconds);
     }
 
     private static class SetUpRemotePing extends MasterToSlaveCallable<Void, IOException> {
-        private static final long serialVersionUID = -2702219700841759872L;
-        private int pingInterval;
-        public SetUpRemotePing(int pingInterval) {
-            this.pingInterval = pingInterval;
+        private final int pingTimeoutSeconds;
+        private final int pingIntervalSeconds;
+        public SetUpRemotePing(int pingTimeoutSeconds, int pingIntervalSeconds) {
+            this.pingTimeoutSeconds = pingTimeoutSeconds;
+            this.pingIntervalSeconds = pingIntervalSeconds;
         }
 
         public Void call() throws IOException {
-            setUpPingForChannel(Channel.current(), pingInterval);
+            setUpPingForChannel(Channel.current(), pingTimeoutSeconds, pingIntervalSeconds);
             return null;
         }
     }
 
-    private static void setUpPingForChannel(final Channel channel, int interval) {
+    private static void setUpPingForChannel(final Channel channel, int timeoutSeconds, int intervalSeconds) {
         final AtomicBoolean isInClosed = new AtomicBoolean(false);
-        final PingThread t = new PingThread(channel, interval * 60 * 1000) {
+        final PingThread t = new PingThread(channel, timeoutSeconds * 1000L, intervalSeconds * 1000L) {
             protected void onDead(Throwable cause) {
                 try {
                     for (PingFailureAnalyzer pfa : PingFailureAnalyzer.all()) {
@@ -136,6 +150,7 @@ public class ChannelPinger extends ComputerListener {
         });
 
         t.start();
-        LOGGER.fine("Ping thread started for " + channel + " with a " + interval + " minute interval");
+        LOGGER.fine("Ping thread started for " + channel + " with a " +
+            intervalSeconds + " second interval and a " + timeoutSeconds + " second timeout.");
     }
 }
