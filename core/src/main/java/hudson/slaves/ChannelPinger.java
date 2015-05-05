@@ -115,7 +115,7 @@ public class ChannelPinger extends ComputerListener {
                         LOGGER.log(FINE,"Ping failed after the channel "+channel.getName()+" is already partially closed.",cause);
                     } else {
                         LOGGER.log(INFO,"Ping failed. Terminating the channel "+channel.getName()+".",cause);
-                        channel.close(cause);
+                        channel.terminate(new IOException(cause));
                     }
                 } catch (IOException e) {
                     LOGGER.log(SEVERE,"Failed to terminate the channel "+channel.getName(),e);
