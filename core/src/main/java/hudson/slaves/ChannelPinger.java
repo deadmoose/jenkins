@@ -100,7 +100,7 @@ public class ChannelPinger extends ComputerListener {
 
         // set up ping from both directions, so that in case of a router dropping a connection,
         // both sides can notice it and take compensation actions.
-        setUpPingForChannel(channel, pingTimeoutSeconds, pingIntervalSeconds);
+        setUpPingForChannel(channel, pingTimeoutSeconds, pingIntervalSeconds, "master");
     }
 
     private static class SetUpRemotePing extends MasterToSlaveCallable<Void, IOException> {
@@ -112,12 +112,12 @@ public class ChannelPinger extends ComputerListener {
         }
 
         public Void call() throws IOException {
-            setUpPingForChannel(Channel.current(), pingTimeoutSeconds, pingIntervalSeconds);
+            setUpPingForChannel(Channel.current(), pingTimeoutSeconds, pingIntervalSeconds, "slave");
             return null;
         }
     }
 
-    private static void setUpPingForChannel(final Channel channel, int timeoutSeconds, int intervalSeconds) {
+    private static void setUpPingForChannel(final Channel channel, int timeoutSeconds, int intervalSeconds, final String sender) {
         final AtomicBoolean isInClosed = new AtomicBoolean(false);
         final PingThread t = new PingThread(channel, timeoutSeconds * 1000L, intervalSeconds * 1000L) {
             protected void onDead(Throwable cause) {
@@ -126,13 +126,13 @@ public class ChannelPinger extends ComputerListener {
                         pfa.onPingFailure(channel,cause);
                     }
                     if (isInClosed.get()) {
-                        LOGGER.log(FINE,"Ping failed after the channel "+channel.getName()+" is already partially closed.",cause);
+                        LOGGER.log(FINE, "Ping failed from " + sender + " after the channel " + channel.getName() + " is already partially closed.", cause);
                     } else {
-                        LOGGER.log(INFO,"Ping failed. Terminating the channel "+channel.getName()+".",cause);
+                        LOGGER.log(INFO, "Ping failed from " + sender + ". Terminating the channel " + channel.getName() + ".", cause);
                         channel.close(cause);
                     }
                 } catch (IOException e) {
-                    LOGGER.log(SEVERE,"Failed to terminate the channel "+channel.getName(),e);
+                    LOGGER.log(SEVERE, "Failed to terminate the channel " + channel.getName() + " from " + sender, e);
                 }
             }
             protected void onDead() {
@@ -143,14 +143,14 @@ public class ChannelPinger extends ComputerListener {
         channel.addListener(new Channel.Listener() {
             @Override
             public void onClosed(Channel channel, IOException cause) {
-                LOGGER.fine("Terminating ping thread for " + channel.getName());
+                LOGGER.fine("Terminating ping thread for " + channel.getName() + " on " + sender);
                 isInClosed.set(true);
                 t.interrupt();  // make sure the ping thread is terminated
             }
         });
 
         t.start();
-        LOGGER.fine("Ping thread started for " + channel + " with a " +
+        LOGGER.fine("Ping thread started on " + sender + " for " + channel + " with a " +
             intervalSeconds + " second interval and a " + timeoutSeconds + " second timeout.");
     }
 }
