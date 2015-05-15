@@ -215,41 +215,6 @@ public class Queue extends ResourceController implements Saveable {
      */
     private final Cache<Long,LeftItem> leftItems = CacheBuilder.newBuilder().expireAfterWrite(5*60, TimeUnit.SECONDS).build();
 
-    private final CachedItemList itemsView = new CachedItemList();
-
-    /**
-     * Maintains a copy of {@link Queue#getItems()}
-     *
-     * @see Queue#getApproximateItemsQuickly()
-     */
-    private class CachedItemList {
-        /**
-         * The current cached value.
-         */
-        @CopyOnWrite
-        private volatile List<Item> itemsView = Collections.emptyList();
-        /**
-         * When does the cache info expire?
-         */
-        private final AtomicLong expires = new AtomicLong();
-
-        List<Item> get() {
-            long t = System.currentTimeMillis();
-            long d = expires.get();
-            if (t>d) {// need to refresh the cache
-                long next = t+CACHE_REFRESH_PERIOD;
-                if (expires.compareAndSet(d,next)) {
-                    // avoid concurrent cache update via CAS.
-                    // if the getItems() lock is contended,
-                    // some threads will end up serving stale data,
-                    // but that's OK.
-                    itemsView = ImmutableList.copyOf(getItems());
-                }
-            }
-            return itemsView;
-        }
-    }
-
     /**
      * Data structure created for each idle {@link Executor}.
      * This is a job offer from the queue to an executor.
@@ -802,25 +767,10 @@ public class Queue extends ResourceController implements Saveable {
         return r;
     }
 
-    /**
-     * Like {@link #getItems()}, but returns an approximation that might not be completely up-to-date.
-     *
-     * <p>
-     * At the expense of accuracy, this method does not usually lock {@link Queue} and therefore is faster
-     * in a highly concurrent situation.
-     *
-     * <p>
-     * The list obtained is an accurate snapshot of the queue at some point in the past. The snapshot
-     * is updated and normally no more than one second old, but this is a soft commitment that might
-     * get violated when the lock on {@link Queue} is highly contended.
-     *
-     * <p>
-     * This method is primarily added to make UI threads run faster.
-     *
-     * @since 1.483
-     */
+    /** @deprecated Use {@link #getItems} instead. */
+    @Deprecated
     public List<Item> getApproximateItemsQuickly() {
-        return itemsView.get();
+        return Arrays.asList(getItems());
     }
 
     public Item getItem(long id) {

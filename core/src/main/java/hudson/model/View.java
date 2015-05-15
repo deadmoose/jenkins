@@ -481,8 +481,10 @@ public abstract class View extends AbstractModelObject implements AccessControll
         return filterQueue(Arrays.asList(Jenkins.getInstance().getQueue().getItems()));
     }
 
+    /** @deprecated Use {@link #getQueueItems} instead. */
+    @Deprecated
     public List<Queue.Item> getApproximateQueueItemsQuickly() {
-        return filterQueue(Jenkins.getInstance().getQueue().getApproximateItemsQuickly());
+      return getQueueItems();
     }
 
     /**
