@@ -277,10 +277,10 @@ public abstract class AbstractNodeMonitorDescriptor<T> extends Descriptor<NodeMo
     }
 
     /**
-     * Controls the time out of monitoring.
+     * Controls the time out of monitoring, specified in milliseconds.
      */
     protected long getMonitoringTimeOut() {
-        return TimeUnit.SECONDS.toMillis(30);
+        return 30 * 1000;
     }
 
     /**
