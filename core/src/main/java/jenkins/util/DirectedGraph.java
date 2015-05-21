@@ -125,8 +125,7 @@ public abstract class DirectedGraph<N> {
                     if (w.index==-1) {
                         visit(w);
                         v.lowlink = Math.min(v.lowlink,w.lowlink);
-                    } else
-                    if (pending.contains(w)) {
+                    } else if (pending.contains(w)) {
                         v.lowlink = Math.min(v.lowlink,w.index);
                     }
                 }

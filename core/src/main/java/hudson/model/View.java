@@ -466,8 +466,7 @@ public abstract class View extends AbstractModelObject implements AccessControll
         for (Queue.Item qi : base) {
             if (items.contains(qi.task)) {
                 result.add(qi);
-            } else
-            if (qi.task instanceof AbstractProject<?, ?>) {
+            } else if (qi.task instanceof AbstractProject<?, ?>) {
                 AbstractProject<?,?> project = (AbstractProject<?, ?>) qi.task;
                 if (items.contains(project.getRootProject())) {
                     result.add(qi);
@@ -710,10 +709,9 @@ public abstract class View extends AbstractModelObject implements AccessControll
                                 User user = entry.getAuthor();
 
                                 UserInfo info = users.get(user);
-                                if(info==null)
+                                if(info==null) {
                                     users.put(user,new UserInfo(user,p,build.getTimestamp()));
-                                else
-                                if(info.getLastChange().before(build.getTimestamp())) {
+                                } else if(info.getLastChange().before(build.getTimestamp())) {
                                     info.project = p;
                                     info.lastChange = build.getTimestamp();
                                 }
@@ -1176,8 +1174,9 @@ public abstract class View extends AbstractModelObject implements AccessControll
                 v.owner = owner;
                 rsp.setStatus(HttpServletResponse.SC_OK);
                 return v;
-            } else
+            } else {
                 throw new Failure(Messages.View_MissingMode());
+            }
         }
 
         View v;

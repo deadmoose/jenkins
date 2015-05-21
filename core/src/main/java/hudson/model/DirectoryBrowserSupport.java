@@ -247,11 +247,10 @@ public final class DirectoryBrowserSupport implements HttpResponse {
 
             List<List<Path>> glob = null;
 
-            if(rest.length()>0) {
+            if (rest.length()>0) {
                 // the rest is Ant glob pattern
                 glob = patternScan(baseFile, rest, createBackRef(restSize));
-            } else
-            if(serveDirIndex) {
+            } else if (serveDirIndex) {
                 // serve directory index
                 glob = baseFile.run(new BuildChildPaths(baseFile, req.getLocale()));
             }
@@ -464,8 +463,8 @@ public final class DirectoryBrowserSupport implements HttpResponse {
 
         private int dirRank(VirtualFile f) {
             try {
-            if(f.isDirectory())     return 0;
-            else                    return 1;
+                if(f.isDirectory())     return 0;
+                else                    return 1;
             } catch (IOException ex) {
                 return 0;
             }

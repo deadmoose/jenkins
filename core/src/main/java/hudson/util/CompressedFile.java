@@ -104,13 +104,13 @@ public class CompressedFile {
      */
     public String loadAsString() throws IOException {
         long sizeGuess;
-        if(file.exists())
+        if(file.exists()) {
             sizeGuess = file.length();
-        else
-        if(gz.exists())
+        } else if(gz.exists()) {
             sizeGuess = gz.length()*2;
-        else
+        } else {
             return "";
+        }
 
         StringBuilder str = new StringBuilder((int)sizeGuess);
 

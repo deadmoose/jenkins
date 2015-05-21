@@ -160,9 +160,9 @@ public class Util {
                value = resolver.resolve(key);
             }
 
-            if(value==null)
+            if(value==null) {
                 idx = m.end(); // skip this
-            else {
+            } else {
                 s = s.substring(0,m.start())+value+s.substring(m.end());
                 idx = m.start() + value.length();
             }
@@ -713,24 +713,25 @@ public class Util {
         duration %= ONE_SECOND_MS;
         long millisecs = duration;
 
-        if (years > 0)
+        if (years > 0) {
             return makeTimeSpanString(years, Messages.Util_year(years), months, Messages.Util_month(months));
-        else if (months > 0)
+        } else if (months > 0) {
             return makeTimeSpanString(months, Messages.Util_month(months), days, Messages.Util_day(days));
-        else if (days > 0)
+        } else if (days > 0) {
             return makeTimeSpanString(days, Messages.Util_day(days), hours, Messages.Util_hour(hours));
-        else if (hours > 0)
+        } else if (hours > 0) {
             return makeTimeSpanString(hours, Messages.Util_hour(hours), minutes, Messages.Util_minute(minutes));
-        else if (minutes > 0)
+        } else if (minutes > 0) {
             return makeTimeSpanString(minutes, Messages.Util_minute(minutes), seconds, Messages.Util_second(seconds));
-        else if (seconds >= 10)
+        } else if (seconds >= 10) {
             return Messages.Util_second(seconds);
-        else if (seconds >= 1)
+        } else if (seconds >= 1) {
             return Messages.Util_second(seconds+(float)(millisecs/100)/10); // render "1.2 sec"
-        else if(millisecs>=100)
+        } else if(millisecs>=100) {
             return Messages.Util_second((float)(millisecs/10)/100); // render "0.12 sec".
-        else
+        } else {
             return Messages.Util_millisecond(millisecs);
+        }
     }
 
 
@@ -917,35 +918,29 @@ public class Util {
     public static String escape(@Nonnull String text) {
         if (text==null)     return null;
         StringBuilder buf = new StringBuilder(text.length()+64);
-        for( int i=0; i<text.length(); i++ ) {
+        for (int i=0; i<text.length(); i++) {
             char ch = text.charAt(i);
-            if(ch=='\n')
+            if (ch=='\n') {
                 buf.append("<br>");
-            else
-            if(ch=='<')
+            } else if(ch=='<') {
                 buf.append("&lt;");
-            else
-            if(ch=='>')
+            } else if(ch=='>') {
                 buf.append("&gt;");
-            else
-            if(ch=='&')
+            } else if(ch=='&') {
                 buf.append("&amp;");
-            else
-            if(ch=='"')
+            } else if(ch=='"') {
                 buf.append("&quot;");
-            else
-            if(ch=='\'')
+            } else if(ch=='\'') {
                 buf.append("&#039;");
-            else
-            if(ch==' ') {
+            } else if(ch==' ') {
                 // All spaces in a block of consecutive spaces are converted to
                 // non-breaking space (&nbsp;) except for the last one.  This allows
                 // significant whitespace to be retained without prohibiting wrapping.
                 char nextCh = i+1 < text.length() ? text.charAt(i+1) : 0;
                 buf.append(nextCh==' ' ? "&nbsp;" : " ");
-            }
-            else
+            } else {
                 buf.append(ch);
+            }
         }
         return buf.toString();
     }
@@ -953,18 +948,17 @@ public class Util {
     @Nonnull
     public static String xmlEscape(@Nonnull String text) {
         StringBuilder buf = new StringBuilder(text.length()+64);
-        for( int i=0; i<text.length(); i++ ) {
+        for (int i=0; i<text.length(); i++) {
             char ch = text.charAt(i);
-            if(ch=='<')
+            if(ch=='<') {
                 buf.append("&lt;");
-            else
-            if(ch=='>')
+            } else if(ch=='>') {
                 buf.append("&gt;");
-            else
-            if(ch=='&')
+            } else if(ch=='&') {
                 buf.append("&amp;");
-            else
+            } else {
                 buf.append(ch);
+            }
         }
         return buf.toString();
     }

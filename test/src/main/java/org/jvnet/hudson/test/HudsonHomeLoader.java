@@ -81,13 +81,13 @@ public interface HudsonHomeLoader {
 
         public File allocate() throws Exception {
             File target = NEW.allocate();
-            if(source.getProtocol().equals("file")) {
+            if (source.getProtocol().equals("file")) {
                 File src = new File(source.toURI());
-                if(src.isDirectory())
+                if (src.isDirectory()) {
                     new FilePath(src).copyRecursiveTo("**/*",new FilePath(target));
-                else
-                if(src.getName().endsWith(".zip"))
+                } else if (src.getName().endsWith(".zip")) {
                     new FilePath(src).unzip(new FilePath(target));
+                }
             } else {
                 File tmp = File.createTempFile("hudson","zip");
                 try {

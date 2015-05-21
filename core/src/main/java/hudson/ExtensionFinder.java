@@ -516,11 +516,11 @@ public abstract class ExtensionFinder implements ExtensionPoint {
                             Class extType;
                             if (e instanceof Field) {
                                 extType = ((Field)e).getType();
-                            } else
-                            if (e instanceof Method) {
+                            } else if (e instanceof Method) {
                                 extType = ((Method)e).getReturnType();
-                            } else
+                            } else {
                                 throw new AssertionError();
+                            }
 
                             resolve(extType);
 
@@ -630,14 +630,13 @@ public abstract class ExtensionFinder implements ExtensionPoint {
                     Class<?> extType;
                     if (e instanceof Class) {
                         extType = (Class) e;
-                    } else
-                    if (e instanceof Field) {
+                    } else if (e instanceof Field) {
                         extType = ((Field)e).getType();
-                    } else
-                    if (e instanceof Method) {
+                    } else if (e instanceof Method) {
                         extType = ((Method)e).getReturnType();
-                    } else
+                    } else {
                         throw new AssertionError();
+                    }
 
                     if(type.isAssignableFrom(extType)) {
                         Object instance = item.instance();
@@ -668,14 +667,13 @@ public abstract class ExtensionFinder implements ExtensionPoint {
                     Class<?> extType;
                     if (e instanceof Class) {
                         extType = (Class) e;
-                    } else
-                    if (e instanceof Field) {
+                    } else if (e instanceof Field) {
                         extType = ((Field)e).getType();
-                    } else
-                    if (e instanceof Method) {
+                    } else if (e instanceof Method) {
                         extType = ((Method)e).getReturnType();
-                    } else
+                    } else {
                         throw new AssertionError();
+                    }
                     // according to http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6459208
                     // this appears to be the only way to force a class initialization
                     Class.forName(extType.getName(),true,extType.getClassLoader());

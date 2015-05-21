@@ -703,24 +703,21 @@ public class Functions {
 
     public static String htmlAttributeEscape(String text) {
         StringBuilder buf = new StringBuilder(text.length()+64);
-        for( int i=0; i<text.length(); i++ ) {
+        for (int i=0; i<text.length(); i++) {
             char ch = text.charAt(i);
-            if(ch=='<')
+            if(ch=='<') {
                 buf.append("&lt;");
-            else
-            if(ch=='>')
+            } else if(ch=='>') {
                 buf.append("&gt;");
-            else
-            if(ch=='&')
+            } else if(ch=='&') {
                 buf.append("&amp;");
-            else
-            if(ch=='"')
+            } else if(ch=='"') {
                 buf.append("&quot;");
-            else
-            if(ch=='\'')
+            } else if(ch=='\'') {
                 buf.append("&#39;");
-            else
+            } else {
                 buf.append(ch);
+            }
         }
         return buf.toString();
     }
@@ -744,9 +741,9 @@ public class Functions {
         if (permission == null)
             return;
         
-        if (object instanceof AccessControlled)
+        if (object instanceof AccessControlled) {
             checkPermission((AccessControlled) object,permission);
-        else {
+        } else {
             List<Ancestor> ancs = Stapler.getCurrentRequest().getAncestors();
             for(Ancestor anc : Iterators.reverse(ancs)) {
                 Object o = anc.getObject();
@@ -776,9 +773,9 @@ public class Functions {
     public static boolean hasPermission(Object object, Permission permission) throws IOException, ServletException {
         if (permission == null)
             return true;
-        if (object instanceof AccessControlled)
+        if (object instanceof AccessControlled) {
             return ((AccessControlled)object).hasPermission(permission);
-        else {
+        } else {
             List<Ancestor> ancs = Stapler.getCurrentRequest().getAncestors();
             for(Ancestor anc : Iterators.reverse(ancs)) {
                 Object o = anc.getObject();

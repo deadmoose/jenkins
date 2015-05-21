@@ -94,14 +94,13 @@ public class RekeySecretAdminMonitor extends AsynchronousAdministrativeMonitor i
     public HttpResponse doScan(StaplerRequest req) throws IOException, GeneralSecurityException {
         if(req.hasParameter("background")) {
             start(false);
-        } else
-        if(req.hasParameter("schedule")) {
+        } else if(req.hasParameter("schedule")) {
             scanOnBoot.on();
-        } else
-        if(req.hasParameter("dismiss")) {
+        } else if(req.hasParameter("dismiss")) {
             disable(true);
-        } else
+        } else {
             throw HttpResponses.error(400,"Invalid request submission: " + req.getParameterMap());
+        }
 
         return HttpResponses.redirectViaContextPath("/manage");
     }

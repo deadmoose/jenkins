@@ -326,8 +326,9 @@ public final class FilePath implements Serializable {
                     if (i > 0) tokens.remove(i-1);
                     else if (tokens.size() > 0) tokens.remove(0);
                 }
-            } else
+            } else {
                 i += 2;
+            }
         }
         // Recombine tokens
         for (String token : tokens) buf.append(token);

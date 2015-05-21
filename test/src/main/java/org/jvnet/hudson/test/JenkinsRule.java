@@ -1446,8 +1446,7 @@ public class JenkinsRule implements TestRule, MethodRule, RootAction {
                 }
                 assertThat("collection size mismatch between " + lhs + " and " + rhs, ltr.hasNext() ^ rtr.hasNext(),
                         is(false));
-            } else
-            if (findDataBoundConstructor(types[i])!=null || (lv!=null && findDataBoundConstructor(lv.getClass())!=null) || (rv!=null && findDataBoundConstructor(rv.getClass())!=null)) {
+            } else if (findDataBoundConstructor(types[i])!=null || (lv!=null && findDataBoundConstructor(lv.getClass())!=null) || (rv!=null && findDataBoundConstructor(rv.getClass())!=null)) {
                 // recurse into nested databound objects
                 assertEqualDataBoundBeans(lv,rv);
             } else {

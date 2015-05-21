@@ -756,9 +756,9 @@ public abstract class PluginManager extends AbstractModelObject implements OnMas
             } finally {
                 bc.commit();
             }
-        } else
-        if (req.hasParameter("add"))
+        } else if (req.hasParameter("add")) {
             return new HttpRedirect("addSite");
+        }
 
         return new HttpRedirect("./sites");
     }
